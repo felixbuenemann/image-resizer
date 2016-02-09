@@ -60,21 +60,19 @@ Image.validOutputFormats = ['jpeg', 'png', 'webp'];
 // Determine the name and format of the requested image
 Image.prototype.parseImage = function(request){
   var fileStr = _.last(request.path.split('/'));
-  var exts = fileStr.split('.').map( function (item) {
-    return item.toLowerCase();
-  });
+  var exts = fileStr.split('.');
 
   // clean out any metadata format
   if (exts[exts.length - 1] === 'json') {
-    this.format = exts[exts.length - 2];
+    this.format = exts[exts.length - 2].toLowerCase();
     exts.pop();
     fileStr = exts.join('.');
   }
 
   // if path contains valid output format, remove it from path
   if (exts.length >= 3) {
-    var inputFormat = exts[exts.length - 2];
-    var outputFormat = exts.pop();
+    var inputFormat = exts[exts.length - 2].toLowerCase();
+    var outputFormat = exts.pop().toLowerCase();
 
     if (_.indexOf(Image.validInputFormats, inputFormat) > -1 &&
         _.indexOf(Image.validOutputFormats, outputFormat) > -1) {
