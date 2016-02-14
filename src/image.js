@@ -189,8 +189,15 @@ Object.defineProperty(Image.prototype, 'contents', {
     this._contents = data;
 
     if (this.isBuffer()) {
-      this.format = imgType(data).ext;
-      this.isFormatValid();
+      var imageType = imgType(data);
+      if (imageType !== null) {
+        this.format = imageType.ext;
+        this.isFormatValid();
+      } else {
+        this.error = new Error(
+          'Response image type detection failed.'
+        );
+      }
     }
   }
 });
