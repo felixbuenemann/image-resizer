@@ -2,8 +2,9 @@
 
 'use strict';
 
-var stream, util, env, request;
+var _, stream, util, env, request;
 
+_       = require('lodash');
 stream  = require('stream');
 util    = require('util');
 env     = require('../../config/environment_vars');
@@ -29,6 +30,8 @@ util.inherits(Dropbox, stream.Readable);
 
 Dropbox.prototype._read = function(){
   var _this = this,
+    url,
+    outputFormat,
     imgStream,
     bufs = [];
 
@@ -41,12 +44,27 @@ Dropbox.prototype._read = function(){
     return this.push(null);
   }
 
+  if (/^[^.]+\.(id|rev)(\.|$)/.test(this.image.path)) {
+    // a4ayc_80_OEAAAAAAAAAYa.id -> id:a4ayc_80_OEAAAAAAAAAYa
+    // a1c10ce0dd78.rev -> rev:a1c10ce0dd78
+    url = this.image.path.split('.').slice(0, 2).reverse().join(':');
+    // fix setting of outputFormat due to invalid format id/rev
+    // eg. a1c10ce0dd78.rev.png changes output format to png
+    outputFormat = this.image.path.split('.').slice(2, 3)[0];
+    if (_.indexOf(this.image.constructor.validOutputFormats, outputFormat) > -1) {
+      this.image.outputFormat = outputFormat;
+    }
+  } else {
+    // make relative path absolute
+    url = '/' + this.image.path;
+  }
+
   this.image.log.time('dropbox');
 
   imgStream = request.get({
     url: 'https://content.dropboxapi.com/2/files/download',
     headers: {
-      'Dropbox-API-Arg': JSON.stringify({ path: '/' + this.image.path })
+      'Dropbox-API-Arg': JSON.stringify({ path: url })
     },
     auth: {
       bearer: env.DROPBOX_ACCESS_TOKEN
