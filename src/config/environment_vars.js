@@ -61,7 +61,10 @@ vars = {
   IMAGE_404: null,
 
   // Whitelist arbitrary HTTP source prefixes using EXTERNAL_SOURCE_*
-  EXTERNAL_SOURCE_WIKIPEDIA: 'https://upload.wikimedia.org/wikipedia/'
+  EXTERNAL_SOURCE_WIKIPEDIA: 'https://upload.wikimedia.org/wikipedia/',
+
+  // Dropbox OAuth2 Bearer Token for v2 API
+  DROPBOX_ACCESS_TOKEN: null
 
 };
 
